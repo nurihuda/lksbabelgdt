@@ -9,7 +9,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2 family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -29,7 +29,6 @@
             overflow-y: hidden;
             transition: background-color 0.3s ease;
         }
-        
         .app-container {
             height: 100vh;
             overflow-y: auto;
@@ -41,39 +40,23 @@
         .app-container::-webkit-scrollbar-track { background: #f1f1f1; }
         .app-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .app-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
         .dark .app-container::-webkit-scrollbar-track { background: #1f2937; }
         .dark .app-container::-webkit-scrollbar-thumb { background: #4b5563; }
-
         .brand-red { background-color: #EE414B !important; color: white; }
         .text-brand-red { color: #EE414B !important; }
         .border-brand-red { border-color: #EE414B !important; }
-
-        @keyframes pulse-fast {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .4; }
-        }
-        .animate-pulse-fast {
-            animation: pulse-fast 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        @keyframes border-glow {
-            0%, 100% { border-color: #EE414B; box-shadow: 0 0 15px rgba(238, 65, 75, 0.2); }
-            50% { border-color: #ef4444; box-shadow: 0 0 25px rgba(239, 68, 68, 0.5); }
-        }
-        .schedule-highlight {
-            animation: border-glow 2s infinite;
-            background-color: #fef2f2 !important;
-        }
-        .dark .schedule-highlight {
-            background-color: rgba(238, 65, 75, 0.15) !important;
-        }
+        @keyframes pulse-fast { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+        .animate-pulse-fast { animation: pulse-fast 1s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes border-glow { 0%, 100% { border-color: #EE414B; box-shadow: 0 0 15px rgba(238, 65, 75, 0.2); } 50% { border-color: #ef4444; box-shadow: 0 0 25px rgba(239, 68, 68, 0.5); } }
+        .schedule-highlight { animation: border-glow 2s infinite; background-color: #fef2f2 !important; }
+        .dark .schedule-highlight { background-color: rgba(238, 65, 75, 0.15) !important; }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
     <div id="root"></div>
 
     <script src="peserta.js"></script>
+    <script src="components.js"></script>
 
     <script type="text/babel" src="script.js"></script>
 </body>
