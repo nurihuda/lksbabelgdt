@@ -45,7 +45,7 @@ const IconClock = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" heigh
 const App = () => {
     const [loading, setLoading] = useState(true);
     const [view, setView] = useState('dashboard'); 
-    const [currentTime, setCurrentTime] = useState(new Date());
+    const [systemTime, setSystemTime] = useState(new Date());
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [timerScale, setTimerScale] = useState(1.0);
     const [darkMode, setDarkMode] = useState(false);
@@ -56,7 +56,7 @@ const App = () => {
     const [newNama, setNewNama] = useState("");
     const [newLink, setNewLink] = useState("");
 
-    // State Admin & Offset Waktu (Molor)
+    // State Admin & Dynamic Duration Offset (Menit Pemotong)
     const [timeOffset, setTimeOffset] = useState(0); 
     
     const [config, setConfig] = useState({ headline: "", docLink: "", submissionLink: "" });
@@ -65,11 +65,11 @@ const App = () => {
     const [pesertaList, setPesertaList] = useState([]);
 
     const timerRef = useRef(null);
-    const spreadsheetEmbedUrl = "https://docs.google.com/spreadsheets/d/e/164oV3IWaIYNoR6rFhKiRe40nXWskc2ccmpVCxh1mItw/pubhtml?gid=0&single=true";
+    const spreadsheetEmbedUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFr1dH2Y34-ZSSxN-Ycasseqx4a_kU8Pja9dQeShIA6la4X5BVQo-JiSCcdZ3k7X8SXxJ8OhVr48d0/pubhtml?gid=0&single=true";
 
-    // Load Data & Sync dari LocalStorage
+    // Load Awal Data
     useEffect(() => {
-        const savedOffset = localStorage.getItem('gdt_time_offset');
+        const savedOffset = localStorage.getItem('gdt_time_offset_live');
         if (savedOffset) setTimeOffset(parseInt(savedOffset));
 
         const savedDarkMode = localStorage.getItem('gdt_dark_mode');
@@ -112,19 +112,15 @@ const App = () => {
             });
     }, []);
 
-    // Real-time Clock
+    // Real-time Clock Server Internal (Selalu Akurat Sesuai Waktu Laptop Asli)
     useEffect(() => {
         const timer = setInterval(() => {
-            const baseTime = new Date();
-            if (timeOffset !== 0) {
-                baseTime.setMinutes(baseTime.getMinutes() - timeOffset);
-            }
-            setCurrentTime(baseTime);
+            setSystemTime(new Date());
         }, 1000);
         return () => clearInterval(timer);
-    }, [timeOffset]);
+    }, []);
 
-    // Deteksi Pintu Masuk Admin Room
+    // Deteksi Admin Room Keyword Entry
     useEffect(() => {
         if (searchQuery.toLowerCase() === 'admin123') {
             setView('admin');
@@ -132,7 +128,7 @@ const App = () => {
         }
     }, [searchQuery]);
 
-    // Fullscreen Monitor
+    // Fullscreen Detector
     useEffect(() => {
         const handleFsChange = () => {
             setIsFullscreen(!!document.fullscreenElement);
@@ -142,7 +138,7 @@ const App = () => {
         return () => document.removeEventListener('fullscreenchange', handleFsChange);
     }, []);
 
-    // Dark Mode Class Handler
+    // Dark Mode Theme Handler
     useEffect(() => {
         if (darkMode) {
             document.documentElement.classList.add('dark');
@@ -164,26 +160,23 @@ const App = () => {
     const zoomIn = () => setTimerScale(prev => Math.min(prev + 0.1, 2.0));
     const zoomOut = () => setTimerScale(prev => Math.max(prev - 0.1, 0.6));
 
-    // Tambah Peserta Baru
+    // Tambah Peserta Baru Area
     const handleAddPeserta = (e) => {
         e.preventDefault();
         if (!newNama || !newLink) {
             alert("Harap isi nama dan link folder drive peserta!");
             return;
         }
-
         const newPeserta = { nama: newNama, link: newLink };
         const updatedList = [...pesertaList, newPeserta];
-        
         setPesertaList(updatedList);
         localStorage.setItem('gdt_custom_peserta_list_babel', JSON.stringify(updatedList));
-        
         setNewNama("");
         setNewLink("");
-        alert(`Peserta "${newNama}" sukses ditambahkan ke web secara lokal!`);
+        alert(`Peserta "${newNama}" sukses ditambahkan!`);
     };
 
-    // Hapus Peserta Lomba via Admin Area
+    // Hapus Peserta Lomba Area
     const handleDeletePeserta = (namaPeserta) => {
         if (confirm(`Apakah Anda yakin ingin menghapus peserta bernama "${namaPeserta}"?`)) {
             const updatedList = pesertaList.filter(p => p.nama !== namaPeserta);
@@ -192,62 +185,87 @@ const App = () => {
         }
     };
 
-    // Simpan Pengaturan Umum Admin
+    // Simpan Pengaturan Control Admin
     const saveAdminSettings = (e) => {
         e.preventDefault();
-        localStorage.setItem('gdt_time_offset', timeOffset);
+        localStorage.setItem('gdt_time_offset_live', timeOffset);
         
         const customLinks = modules.map(m => m.link);
         localStorage.setItem('gdt_custom_module_links', JSON.stringify(customLinks));
         
-        alert("Konfigurasi Waktu & Modul Berhasil Disimpan!");
+        alert("Konfigurasi Durasi & Modul Berhasil Disimpan!");
         setView('dashboard');
     };
 
     const resetAdminSettings = () => {
-        if (confirm("Apakah Anda yakin ingin menghapus semua kustomisasi lokal kembali ke bawaan GitHub asli Babel?")) {
-            localStorage.removeItem('gdt_time_offset');
+        if (confirm("Apakah Anda yakin ingin menghapus semua modifikasi waktu & mengembalikan ke timeline normal?")) {
+            localStorage.removeItem('gdt_time_offset_live');
             localStorage.removeItem('gdt_custom_module_links');
             localStorage.removeItem('gdt_custom_peserta_list_babel');
-            alert("Data web dibersihkan!");
+            setTimeOffset(0);
             window.location.reload();
         }
     };
 
-    // Format String Waktu Sekarang
+    // Format String Jam Utama (WIB)
     const liveTimeString = useMemo(() => {
-        return currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " WIB";
-    }, [currentTime]);
+        return systemTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " WIB";
+    }, [systemTime]);
 
     const liveFullDateString = useMemo(() => {
-        return currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    }, [currentTime]);
+        return systemTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }, [systemTime]);
 
-    // Logic Event Timer
-    const { activeEvent, nextEvent } = useMemo(() => {
+    // REVISI LOGIKA UTAMA: DINAMIS MENGHITUNG OFFSET AGENDA YANG SEDANG BERJALAN AKTIF
+    const { activeEvent, nextEvent, countdownMinutesLeft } = useMemo(() => {
         let active = null;
         let next = null;
+
+        // Mencari agenda yang aktif berdasarkan waktu asli laptop saat ini
         for (let i = 0; i < schedule.length; i++) {
             const s = schedule[i];
-            if (currentTime >= s.start && currentTime <= s.end) {
+            if (systemTime >= s.start && systemTime <= s.end) {
                 active = s;
                 break;
             }
-            if (currentTime < s.start && !next) {
+            if (systemTime < s.start && !next) {
                 next = s;
             }
         }
-        return { activeEvent: active, nextEvent: next };
-    }, [currentTime, schedule]);
 
-    const countdownTarget = activeEvent ? activeEvent.end : (nextEvent ? nextEvent.start : null);
-    const timeDiff = countdownTarget ? countdownTarget.getTime() - currentTime.getTime() : 0;
+        let finalDiffMs = 0;
+
+        if (active) {
+            // Skenario 1: Ada agenda berjalan. Target countdown aslinya adalah jam selesai (end).
+            const originalEnd = active.end.getTime();
+            const timePassedSinceStart = systemTime.getTime() - active.start.getTime();
+            
+            // Injeksi modifikasi waktu admin langsung memotong/menambah batas limit jam selesai agenda berjalan
+            const modifiedEnd = originalEnd + (timeOffset * 60 * 1000);
+            finalDiffMs = modifiedEnd - systemTime.getTime();
+        } else if (next) {
+            // Skenario 2: Masa tenggang jeda antar agenda. Target hitung mundur menuju jam mulai berikutnya.
+            finalDiffMs = next.start.getTime() - systemTime.getTime();
+        }
+
+        return { 
+            activeEvent: active, 
+            nextEvent: next, 
+            countdownMinutesLeft: finalDiffMs > 0 ? finalDiffMs : 0 
+        };
+    }, [systemTime, schedule, timeOffset]);
+
+    // Memecah milidetik sisa hitung mundur dinamis menjadi Jam, Menit, Detik untuk dirender ke kotak merah
+    const { displayHours, displayMinutes, displaySeconds } = useMemo(() => {
+        const totalSecs = Math.floor(countdownMinutesLeft / 1000);
+        return {
+            displayHours: Math.floor(totalSecs / 3600),
+            displayMinutes: Math.floor((totalSecs % 3600) / 60),
+            displaySeconds: totalSecs % 60
+        };
+    }, [countdownMinutesLeft]);
+
     const isFinished = !activeEvent && !nextEvent && schedule.length > 0;
-
-    const hours = timeDiff > 0 ? Math.floor(timeDiff / (1000 * 60 * 60)) : 0;
-    const minutes = timeDiff > 0 ? Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60)) : 0;
-    const seconds = timeDiff > 0 ? Math.floor((timeDiff % (1000 * 60)) / 1000) : 0;
-
     const pad = (num) => String(num).padStart(2, '0');
 
     // Filter & Pengurutan nama
@@ -255,13 +273,9 @@ const App = () => {
         let result = pesertaList.filter(p => 
             p.nama.toLowerCase().includes(searchQuery.toLowerCase())
         );
-
         return result.sort((a, b) => {
-            if (sortBy === 'name-asc') {
-                return a.nama.localeCompare(b.nama);
-            } else if (sortBy === 'name-desc') {
-                return b.nama.localeCompare(a.nama);
-            }
+            if (sortBy === 'name-asc') return a.nama.localeCompare(b.nama);
+            if (sortBy === 'name-desc') return b.nama.localeCompare(a.nama);
             return 0;
         });
     }, [pesertaList, searchQuery, sortBy]);
@@ -282,7 +296,6 @@ const App = () => {
                             <IconClock />
                             <span>{liveTimeString}</span>
                         </div>
-
                         <button onClick={toggleDarkMode} className="p-2.5 bg-white bg-opacity-10 hover:bg-opacity-20 text-white rounded-xl transition-all border border-white border-opacity-10">
                             {darkMode ? <IconSun /> : <IconMoon />}
                         </button>
@@ -301,7 +314,9 @@ const App = () => {
                     <div className="text-center mb-8">
                         <h1 className="text-2xl sm:text-4xl font-black tracking-wider uppercase text-gray-800 dark:text-white">{config.headline || "Portal Utama LKS"}</h1>
                         {timeOffset !== 0 && (
-                            <span className="inline-block mt-2 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase animate-pulse">Kontrol Waktu Admin Jam Aktif (Kompensasi: {timeOffset} Menit)</span>
+                            <span className="inline-block mt-2 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase animate-pulse">
+                                Modifikasi Durasi Countdown Aktif: ({timeOffset > 0 ? `+${timeOffset}` : timeOffset} Menit)
+                            </span>
                         )}
                     </div>
                 )}
@@ -310,7 +325,7 @@ const App = () => {
                 {view === 'dashboard' && (
                     <div className="space-y-12 animate-fade-in">
                         <div className="text-center max-w-xl mx-auto bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-md rounded-2xl py-4 px-6 flex flex-col items-center justify-center gap-1">
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1"><IconClock /> Waktu Sekarang</span>
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1"><IconClock /> Waktu Sekarang (Lokal)</span>
                             <h2 className="text-2xl sm:text-3xl font-black text-gray-800 dark:text-white font-mono tracking-wide">{liveTimeString}</h2>
                             <p className="text-xs font-semibold text-gray-400">{liveFullDateString}</p>
                         </div>
@@ -337,17 +352,17 @@ const App = () => {
 
                                 <div className="flex justify-center items-center gap-4 sm:gap-6">
                                     <div className="flex flex-col items-center">
-                                        <div className="bg-gray-900 dark:bg-gray-950 text-white w-20 h-24 sm:w-28 sm:h-32 flex items-center justify-center rounded-xl text-4xl sm:text-6xl font-black shadow-inner">{pad(hours)}</div>
+                                        <div className="bg-gray-900 dark:bg-gray-950 text-white w-20 h-24 sm:w-28 sm:h-32 flex items-center justify-center rounded-xl text-4xl sm:text-6xl font-black shadow-inner">{pad(displayHours)}</div>
                                         <span className="text-gray-500 dark:text-gray-400 font-bold mt-3 text-xs uppercase tracking-widest">Jam</span>
                                     </div>
                                     <div className="text-4xl sm:text-6xl font-black text-gray-300 dark:text-gray-700 -mt-8">:</div>
                                     <div className="flex flex-col items-center">
-                                        <div className="brand-red w-20 h-24 sm:w-28 sm:h-32 flex items-center justify-center rounded-xl text-4xl sm:text-6xl font-black shadow-lg ring-4 ring-red-100 dark:ring-red-950">{pad(minutes)}</div>
+                                        <div className="brand-red w-20 h-24 sm:w-28 sm:h-32 flex items-center justify-center rounded-xl text-4xl sm:text-6xl font-black shadow-lg ring-4 ring-red-100 dark:ring-red-950">{pad(displayMinutes)}</div>
                                         <span className="text-gray-500 dark:text-gray-400 font-bold mt-3 text-xs uppercase tracking-widest">Menit</span>
                                     </div>
                                     <div className="text-4xl sm:text-6xl font-black text-gray-300 dark:text-gray-700 -mt-8">:</div>
                                     <div className="flex flex-col items-center">
-                                        <div className="bg-gray-900 dark:bg-gray-950 text-white w-20 h-24 sm:w-28 sm:h-32 flex items-center justify-center rounded-xl text-4xl sm:text-6xl font-black shadow-inner">{pad(seconds)}</div>
+                                        <div className="bg-gray-900 dark:bg-gray-950 text-white w-20 h-24 sm:w-28 sm:h-32 flex items-center justify-center rounded-xl text-4xl sm:text-6xl font-black shadow-inner">{pad(displaySeconds)}</div>
                                         <span className="text-gray-500 dark:text-gray-400 font-bold mt-3 text-xs uppercase tracking-widest">Detik</span>
                                     </div>
                                 </div>
@@ -386,8 +401,9 @@ const App = () => {
                             </div>
                             <form onSubmit={saveAdminSettings} className="space-y-5">
                                 <div className="space-y-1">
-                                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Kompensasi Waktu Timeline (Menit):</label>
+                                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Potong/Tambah Durasi Countdown Aktif (Menit):</label>
                                     <input type="number" value={timeOffset} onChange={(e) => setTimeOffset(parseInt(e.target.value) || 0)} className="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-bold focus:ring-1 focus:ring-red-500 focus:outline-none"/>
+                                    <p className="text-[10px] text-amber-500 font-medium">💡 Contoh: Isi 10 untuk menambah durasi sesi aktif 10 menit lebih lama. Isi -5 untuk mempercepat durasi sesi aktif 5 menit lebih cepat.</p>
                                 </div>
                                 <div className="space-y-3 pt-3 border-t border-gray-100 dark:border-gray-800">
                                     <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Override Link Modul Soal:</label>
@@ -533,7 +549,7 @@ const App = () => {
                         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 overflow-hidden">
                             <div className="divide-y divide-gray-100 dark:divide-gray-800">
                                 {modules.map((modul) => {
-                                    const isUnlocked = currentTime >= modul.releaseTime;
+                                    const isUnlocked = systemTime >= modul.releaseTime;
                                     return (
                                         <div key={modul.id} className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
                                             <div className="space-y-2 flex-1">
@@ -582,8 +598,8 @@ const App = () => {
                                     <div className="bg-gray-50 dark:bg-gray-800/60 px-6 py-4 border-b border-gray-100 dark:border-gray-800"><h3 className="font-bold text-lg text-gray-700 dark:text-gray-300">{dateLabel}</h3></div>
                                     <div className="divide-y divide-gray-100 dark:divide-gray-800">
                                         {items.map((item) => {
-                                            const isPast = currentTime > item.end;
-                                            const isNow = currentTime >= item.start && currentTime <= item.end;
+                                            const isPast = systemTime > item.end;
+                                            const isNow = systemTime >= item.start && systemTime <= item.end;
                                             return (
                                                 <div key={item.id} className={`p-6 flex flex-col sm:flex-row gap-4 sm:gap-8 border-l-4 transition-all duration-300 ${
                                                     isNow ? 'schedule-highlight border-l-red-500' : 'hover:bg-gray-50 dark:hover:bg-gray-800/20 border-l-transparent'
