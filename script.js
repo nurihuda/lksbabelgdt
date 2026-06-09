@@ -112,7 +112,7 @@ const App = () => {
             });
     }, []);
 
-    // Real-time Clock Server Internal (Selalu Akurat Sesuai Waktu Laptop Asli)
+    // Real-time Clock Server Internal
     useEffect(() => {
         const timer = setInterval(() => {
             setSystemTime(new Date());
@@ -138,7 +138,7 @@ const App = () => {
         return () => document.removeEventListener('fullscreenchange', handleFsChange);
     }, []);
 
-    // Dark Mode Theme Handler
+    // Dark Mode Class Handler
     useEffect(() => {
         if (darkMode) {
             document.documentElement.classList.add('dark');
@@ -223,7 +223,7 @@ const App = () => {
         return systemTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     }, [systemTime]);
 
-    // REVISI LOGIKA UTAMA: DINAMIS MENGHITUNG OFFSET AGENDA YANG SEDANG BERJALAN AKTIF
+    // LOGIKA UTAMA: DINAMIS MENGHITUNG OFFSET AGENDA YANG SEDANG BERJALAN AKTIF
     const { activeEvent, nextEvent, countdownMinutesLeft } = useMemo(() => {
         let active = null;
         let next = null;
@@ -406,12 +406,11 @@ const App = () => {
                                     {activeEvent ? `AKTIF: ${activeEvent.title}` : (nextEvent ? `TENGGANG JEDA: Menuju ${nextEvent.title}` : "Agenda Selesai")}
                                 </div>
                                 
-                                {/* Countdown Digital Raksasa di Room Admin */}
                                 <div className="text-4xl font-black font-mono tracking-wider text-red-400 py-2 bg-black bg-opacity-30 rounded-2xl shadow-inner">
                                     {pad(displayHours)}:{pad(displayMinutes)}:{pad(displaySeconds)}
                                 </div>
 
-                                {/* QUICK CONTROLLER BUTTONS (Sesuai Request: -10 -5 +5 +10) */}
+                                {/* QUICK CONTROLLER BUTTONS */}
                                 <div className="space-y-2">
                                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wide block">Quick Adjustment (Menit)</span>
                                     <div className="grid grid-cols-4 gap-1.5">
@@ -432,7 +431,7 @@ const App = () => {
                                 <form onSubmit={saveAdminSettings} className="space-y-4">
                                     <div className="space-y-1">
                                         <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Akurasi Offset Kumulatif (Menit):</label>
-                                        <input type="number" value={timeOffset} onChange={(e) => setTimeOffset(parseInt(e.target.value) || 0)} className="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-bold focus:ring-1 focus:ring-red-500 focus:outline-none"/>
+                                        <input type="number" value={timeOffset} onChange={(e) => setTimeOffset(parseInt(e.target.value) || 0)} className="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-bold focus:ring-1 focus:ring-red-500 focus:outline-none" />
                                     </div>
                                     <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800">
                                         <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Override Link Modul Soal:</label>
@@ -441,7 +440,7 @@ const App = () => {
                                                 <span className="text-[11px] font-bold text-gray-400">Modul {idx + 1}:</span>
                                                 <input type="text" value={modul.link} onChange={(e) => {
                                                     const u = [...modules]; u[idx].link = e.target.value; setModules(u);
-                                                }} className="w-full px-3 py-1 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"/>
+                                                }} className="w-full px-3 py-1 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800" />
                                             </div>
                                         ))}
                                     </div>
@@ -461,11 +460,11 @@ const App = () => {
                                 <form onSubmit={handleAddPeserta} className="space-y-4">
                                     <div className="space-y-1">
                                         <span className="text-xs font-bold text-gray-400 uppercase">Nama Lengkap Peserta</span>
-                                        <input type="text" placeholder="Nama Peserta Baru" value={newNama} onChange={(e) => setNewNama(e.target.value)} className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none"/>
+                                        <input type="text" placeholder="Nama Peserta Baru" value={newNama} onChange={(e) => setNewNama(e.target.value)} className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none" />
                                     </div>
                                     <div className="space-y-1">
                                         <span className="text-xs font-bold text-gray-400 uppercase">Link Folder Google Drive Tugas</span>
-                                        <input type="text" placeholder="https://drive.google.com/drive/folders/..." value={newLink} onChange={(e) => setNewLink(e.target.value)} className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none"/>
+                                        <input type="text" placeholder="https://drive.google.com/drive/folders/..." value={newLink} onChange={(e) => setNewLink(e.target.value)} className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none" />
                                     </div>
                                     <button type="submit" className="w-full sm:w-auto px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-md transition-colors">Simpan Peserta Baru</button>
                                 </form>
@@ -668,4 +667,4 @@ const App = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(App />);
+root.render(<App />);
