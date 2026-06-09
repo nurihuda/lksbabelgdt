@@ -50,8 +50,6 @@ const App = () => {
     const [timerScale, setTimerScale] = useState(1.0);
     const [darkMode, setDarkMode] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    
-    // REVISI: default urutan diganti ke Alfabet Nama (A-Z) karena nomor peserta ditiadakan
     const [sortBy, setSortBy] = useState("name-asc");
 
     // State Input Tambah Peserta Baru
@@ -166,7 +164,7 @@ const App = () => {
     const zoomIn = () => setTimerScale(prev => Math.min(prev + 0.1, 2.0));
     const zoomOut = () => setTimerScale(prev => Math.max(prev - 0.1, 0.6));
 
-    // REVISI: Tambah Peserta Baru Tanpa Kolom Nomor
+    // Tambah Peserta Baru
     const handleAddPeserta = (e) => {
         e.preventDefault();
         if (!newNama || !newLink) {
@@ -252,7 +250,7 @@ const App = () => {
 
     const pad = (num) => String(num).padStart(2, '0');
 
-    // REVISI: Filter & Pengurutan tanpa nomor peserta
+    // Filter & Pengurutan nama
     const processedPesertaTable = useMemo(() => {
         let result = pesertaList.filter(p => 
             p.nama.toLowerCase().includes(searchQuery.toLowerCase())
@@ -407,7 +405,6 @@ const App = () => {
                             </form>
                         </div>
 
-                        {/* REVISI: Manajemen Peserta Baru Tanpa Nomor Input */}
                         <div className="lg:col-span-2 space-y-6">
                             <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800">
                                 <div className="flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 pb-3 mb-4">
@@ -451,7 +448,7 @@ const App = () => {
                     </div>
                 )}
 
-                {/* VIEW: FOLDER PENGUMPULAN (REVISI LOGIKA JADI LEBIH BERSIH TANPA NOMOR) */}
+                {/* VIEW: FOLDER PENGUMPULAN */}
                 {view === 'submission' && (
                     <div className="max-w-4xl mx-auto animate-fade-in space-y-12">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -464,7 +461,6 @@ const App = () => {
                             </div>
                             
                             <div className="flex flex-wrap items-center gap-3">
-                                {/* REVISI: Opsi Sortir kini difokuskan ke nama karena tidak ada nomor urut */}
                                 <div className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700">
                                     <span className="text-xs font-bold text-gray-400 uppercase">Urutan:</span>
                                     <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="text-xs font-bold text-gray-700 dark:text-gray-300 bg-transparent focus:outline-none cursor-pointer">
@@ -478,7 +474,6 @@ const App = () => {
                             </div>
                         </div>
 
-                        {/* REVISI TABEL: Kolom nomor urut ditiadakan sepenuhnya */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
@@ -494,7 +489,6 @@ const App = () => {
                                                 <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors text-gray-700 dark:text-gray-300">
                                                     <td className="px-8 py-5 font-semibold text-gray-900 dark:text-white text-base">{peserta.nama}</td>
                                                     <td className="px-8 py-5 text-right">
-                                                        {/* REVISI: Nama tombol berubah menjadi [Nama Peserta]_LKS BABEL 2026 */}
                                                         <a href={peserta.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 brand-red px-4 py-2 rounded-xl text-sm font-bold shadow-md hover:bg-red-600 transition-all transform hover:-translate-y-0.5">
                                                             <span>{peserta.nama}_LKS BABEL 2026</span><IconExternalLink />
                                                         </a>
