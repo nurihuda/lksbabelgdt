@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal LKS GDT Bangka Belitung 2026</title>
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg id='Layer_2' data-name='Layer 2' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 305.3 305.3'><defs><style>.cls-1 { fill: %23ff2741; }</style></defs><g id='_7' data-name='7'><path class='cls-1' d='M152.65,305.3c-8.8,0-15.93-7.13-15.93-15.93v-45.57c0-8.8,7.13-15.93,15.93-15.93s15.93,7.13,15.93,15.93v45.57c0,8.8-7.13,15.93-15.93,15.93Z'/></g><g id='_6' data-name='6'><path class='cls-1' d='M249.33,265.25c-4.08,0-8.15-1.55-11.26-4.67l-32.23-32.23c-6.22-6.22-6.22-16.3,0-22.52s16.3-6.22,22.52,0l32.23,32.23c6.22,6.22,6.22,16.3,0,22.52-3.11,3.11-7.19,4.67-11.26,4.67Z'/></g><g id='_5' data-name='5'><path class='cls-1' d='M289.37,168.58h-45.57c-8.8,0-15.93-7.13-15.93-15.93s7.13-15.93,15.93-15.93h45.57c8.8,0,15.93,7.13,15.93,15.93s-7.13,15.93-15.93,15.93Z'/></g><g id='_4' data-name='4'><path class='cls-1' d='M217.1,104.12c-4.08,0-8.15-1.55-11.26-4.66-6.22-6.22-6.22-16.3,0-22.52l32.23-32.23c6.22-6.22,16.3-6.22,22.52,0,6.22,6.22,6.22,16.3,0,22.52l-32.23,32.23c-3.11,3.11-7.19,4.67-11.26,4.67Z'/></g><g id='_3' data-name='3'><path class='cls-1' d='M152.65,77.43c-8.8,0-15.93-7.13-15.93-15.93V15.93c0-8.8,7.13-15.93,15.93-15.93s15.93,7.13,15.93,15.93v45.57c0,8.8-7.13,15.93-15.93,15.93Z'/></g><g id='_2' data-name='2'><path class='cls-1' d='M88.2,104.12c-4.08,0-8.15-1.55-11.26-4.66l-32.23-32.23c-6.22-6.22-6.22-16.3,0-22.52,6.22-6.22,16.3-6.22,22.52,0l32.23,32.23c6.22,6.22,6.22,16.3,0,22.52-3.11,3.11-7.19,4.67-11.26,4.67Z'/></g><g id='_1' data-name='1'><path class='cls-1' d='M61.5,168.58H15.93c-8.8,0-15.93-7.13-15.93-15.93s7.13-15.93,15.93-15.93h45.57c8.8,0,15.93,7.13,15.93,15.93s-7.13,15.93-15.93,15.93Z'/></g><g id='tongkat'><path class='cls-1' d='M55.97,265.25c-4.08,0-8.15-1.55-11.26-4.67-6.22-6.22-6.22-16.3,0-22.52l96.68-96.68c6.22-6.22,16.3-6.22,22.52,0,6.22,6.22,6.22,16.3,0,22.52l-96.68,96.68c-3.11,3.11-7.19,4.67-11.26,4.67Z'/></g></svg>">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2 family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'DM Sans', sans-serif;
+            overflow-y: hidden;
+            transition: background-color 0.3s ease;
+        }
+        
+        .app-container {
+            height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-content: space-between;
+            flex-direction: column;
+        }
+        .app-container::-webkit-scrollbar { width: 8px; }
+        .app-container::-webkit-scrollbar-track { background: #f1f1f1; }
+        .app-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .app-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .dark .app-container::-webkit-scrollbar-track { background: #1f2937; }
+        .dark .app-container::-webkit-scrollbar-thumb { background: #4b5563; }
+
+        .brand-red { background-color: #EE414B !important; color: white; }
+        .text-brand-red { color: #EE414B !important; }
+        .border-brand-red { border-color: #EE414B !important; }
+
+        @keyframes pulse-fast {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .4; }
+        }
+        .animate-pulse-fast {
+            animation: pulse-fast 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes border-glow {
+            0%, 100% { border-color: #EE414B; box-shadow: 0 0 15px rgba(238, 65, 75, 0.2); }
+            50% { border-color: #ef4444; box-shadow: 0 0 25px rgba(239, 68, 68, 0.5); }
+        }
+        .schedule-highlight {
+            animation: border-glow 2s infinite;
+            background-color: #fef2f2 !important;
+        }
+        .dark .schedule-highlight {
+            background-color: rgba(238, 65, 75, 0.15) !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+    <div id="root"></div>
+
+    <script src="peserta.js"></script>
+
+    <script type="text/babel" src="script.js"></script>
+</body>
+</html>
