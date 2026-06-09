@@ -120,7 +120,7 @@ const App = () => {
         return () => clearInterval(timer);
     }, []);
 
-    // Deteksi Admin Room Keyword Entry
+    // Deteksi Pintu Masuk Admin Room
     useEffect(() => {
         if (searchQuery.toLowerCase() === 'admin123') {
             setView('admin');
@@ -193,8 +193,15 @@ const App = () => {
         const customLinks = modules.map(m => m.link);
         localStorage.setItem('gdt_custom_module_links', JSON.stringify(customLinks));
         
-        alert("Konfigurasi Durasi & Modul Berhasil Disimpan!");
+        alert("Konfigurasi Berhasil Disimpan!");
         setView('dashboard');
+    };
+
+    // Fungsi klik tombol Quick Button (+ / - Menit) instan di Admin Room
+    const adjustOffsetInstantly = (amount) => {
+        const newOffset = timeOffset + amount;
+        setTimeOffset(newOffset);
+        localStorage.setItem('gdt_time_offset_live', newOffset);
     };
 
     const resetAdminSettings = () => {
@@ -221,7 +228,6 @@ const App = () => {
         let active = null;
         let next = null;
 
-        // Mencari agenda yang aktif berdasarkan waktu asli laptop saat ini
         for (let i = 0; i < schedule.length; i++) {
             const s = schedule[i];
             if (systemTime >= s.start && systemTime <= s.end) {
@@ -236,15 +242,10 @@ const App = () => {
         let finalDiffMs = 0;
 
         if (active) {
-            // Skenario 1: Ada agenda berjalan. Target countdown aslinya adalah jam selesai (end).
             const originalEnd = active.end.getTime();
-            const timePassedSinceStart = systemTime.getTime() - active.start.getTime();
-            
-            // Injeksi modifikasi waktu admin langsung memotong/menambah batas limit jam selesai agenda berjalan
             const modifiedEnd = originalEnd + (timeOffset * 60 * 1000);
             finalDiffMs = modifiedEnd - systemTime.getTime();
         } else if (next) {
-            // Skenario 2: Masa tenggang jeda antar agenda. Target hitung mundur menuju jam mulai berikutnya.
             finalDiffMs = next.start.getTime() - systemTime.getTime();
         }
 
@@ -255,7 +256,7 @@ const App = () => {
         };
     }, [systemTime, schedule, timeOffset]);
 
-    // Memecah milidetik sisa hitung mundur dinamis menjadi Jam, Menit, Detik untuk dirender ke kotak merah
+    // Memecah milidetik sisa hitung mundur dinamis menjadi Jam, Menit, Detik
     const { displayHours, displayMinutes, displaySeconds } = useMemo(() => {
         const totalSecs = Math.floor(countdownMinutesLeft / 1000);
         return {
@@ -394,33 +395,63 @@ const App = () => {
                 {/* VIEW: CONTROL PANEL RAHASIA ADMIN */}
                 {view === 'admin' && (
                     <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
-                        <div className="lg:col-span-1 bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 h-fit">
-                            <div className="flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 pb-3 mb-5">
-                                <div className="text-brand-red"><IconSettings /></div>
-                                <h2 className="text-lg font-black text-gray-900 dark:text-white uppercase">Konfigurasi Lomba</h2>
+                        {/* Lajur Kiri: Setting Jam, Modul & LIVE COUNTDOWN PANEL */}
+                        <div className="lg:col-span-1 space-y-6">
+                            {/* LIVE MONITORING TIMER PANEL */}
+                            <div className="bg-gray-900 text-white p-6 rounded-3xl shadow-xl border border-gray-800 text-center space-y-4">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center justify-center gap-1">
+                                    <IconClock /> Live Status Sesi
+                                </span>
+                                <div className="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20 truncate">
+                                    {activeEvent ? `AKTIF: ${activeEvent.title}` : (nextEvent ? `TENGGANG JEDA: Menuju ${nextEvent.title}` : "Agenda Selesai")}
+                                </div>
+                                
+                                {/* Countdown Digital Raksasa di Room Admin */}
+                                <div className="text-4xl font-black font-mono tracking-wider text-red-400 py-2 bg-black bg-opacity-30 rounded-2xl shadow-inner">
+                                    {pad(displayHours)}:{pad(displayMinutes)}:{pad(displaySeconds)}
+                                </div>
+
+                                {/* QUICK CONTROLLER BUTTONS (Sesuai Request: -10 -5 +5 +10) */}
+                                <div className="space-y-2">
+                                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wide block">Quick Adjustment (Menit)</span>
+                                    <div className="grid grid-cols-4 gap-1.5">
+                                        <button type="button" onClick={() => adjustOffsetInstantly(-10)} className="bg-gray-800 hover:bg-red-900/50 text-red-400 font-mono font-bold py-2 rounded-xl text-xs border border-gray-700 transition-colors">-10</button>
+                                        <button type="button" onClick={() => adjustOffsetInstantly(-5)} className="bg-gray-800 hover:bg-red-900/50 text-red-400 font-mono font-bold py-2 rounded-xl text-xs border border-gray-700 transition-colors">-5</button>
+                                        <button type="button" onClick={() => adjustOffsetInstantly(5)} className="bg-gray-800 hover:bg-green-900/50 text-green-400 font-mono font-bold py-2 rounded-xl text-xs border border-gray-700 transition-colors">+5</button>
+                                        <button type="button" onClick={() => adjustOffsetInstantly(10)} className="bg-gray-800 hover:bg-green-900/50 text-green-400 font-mono font-bold py-2 rounded-xl text-xs border border-gray-700 transition-colors">+10</button>
+                                    </div>
+                                </div>
                             </div>
-                            <form onSubmit={saveAdminSettings} className="space-y-5">
-                                <div className="space-y-1">
-                                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Potong/Tambah Durasi Countdown Aktif (Menit):</label>
-                                    <input type="number" value={timeOffset} onChange={(e) => setTimeOffset(parseInt(e.target.value) || 0)} className="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-bold focus:ring-1 focus:ring-red-500 focus:outline-none"/>
-                                    <p className="text-[10px] text-amber-500 font-medium">💡 Contoh: Isi 10 untuk menambah durasi sesi aktif 10 menit lebih lama. Isi -5 untuk mempercepat durasi sesi aktif 5 menit lebih cepat.</p>
+
+                            {/* Form Input Custom Manual */}
+                            <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800">
+                                <div className="flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 pb-3 mb-4">
+                                    <div className="text-brand-red"><IconSettings /></div>
+                                    <h2 className="text-sm font-black text-gray-900 dark:text-white uppercase">Input Custom Manual</h2>
                                 </div>
-                                <div className="space-y-3 pt-3 border-t border-gray-100 dark:border-gray-800">
-                                    <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Override Link Modul Soal:</label>
-                                    {modules.map((modul, idx) => (
-                                        <div key={idx} className="space-y-1">
-                                            <span className="text-[11px] font-bold text-gray-400">Modul {idx + 1}:</span>
-                                            <input type="text" value={modul.link} onChange={(e) => {
-                                                const u = [...modules]; u[idx].link = e.target.value; setModules(u);
-                                            }} className="w-full px-3 py-1.5 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"/>
-                                        </div>
-                                    ))}
-                                </div>
-                                <button type="submit" className="w-full brand-red py-2.5 rounded-xl font-bold shadow-md hover:bg-red-600 text-xs uppercase tracking-wider">Simpan Konfigurasi</button>
-                                <button type="button" onClick={resetAdminSettings} className="w-full py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl text-xs font-bold uppercase hover:bg-gray-200">Reset Semua Global</button>
-                            </form>
+                                <form onSubmit={saveAdminSettings} className="space-y-4">
+                                    <div className="space-y-1">
+                                        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Akurasi Offset Kumulatif (Menit):</label>
+                                        <input type="number" value={timeOffset} onChange={(e) => setTimeOffset(parseInt(e.target.value) || 0)} className="w-full px-4 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 font-bold focus:ring-1 focus:ring-red-500 focus:outline-none"/>
+                                    </div>
+                                    <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                                        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Override Link Modul Soal:</label>
+                                        {modules.map((modul, idx) => (
+                                            <div key={idx} className="space-y-1">
+                                                <span className="text-[11px] font-bold text-gray-400">Modul {idx + 1}:</span>
+                                                <input type="text" value={modul.link} onChange={(e) => {
+                                                    const u = [...modules]; u[idx].link = e.target.value; setModules(u);
+                                                }} className="w-full px-3 py-1 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"/>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button type="submit" className="w-full brand-red py-2.5 rounded-xl font-bold shadow-md hover:bg-red-600 text-xs uppercase tracking-wider">Simpan Semua Konfigurasi</button>
+                                    <button type="button" onClick={resetAdminSettings} className="w-full py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl text-xs font-bold uppercase hover:bg-gray-200">Reset Semua Global</button>
+                                </form>
+                            </div>
                         </div>
 
+                        {/* Lajur Kanan: Ruang Tambah & Hapus Folder Peserta */}
                         <div className="lg:col-span-2 space-y-6">
                             <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800">
                                 <div className="flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 pb-3 mb-4">
@@ -637,4 +668,4 @@ const App = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+root.render(App />);
