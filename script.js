@@ -65,7 +65,7 @@ const App = () => {
     const [pesertaList, setPesertaList] = useState([]);
 
     const timerRef = useRef(null);
-    const spreadsheetEmbedUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFr1dH2Y34-ZSSxN-Ycasseqx4a_kU8Pja9dQeShIA6la4X5BVQo-JiSCcdZ3k7X8SXxJ8OhVr48d0/pubhtml?gid=0&single=true";
+    const spreadsheetEmbedUrl = "https://docs.google.com/spreadsheets/d/e/164oV3IWaIYNoR6rFhKiRe40nXWskc2ccmpVCxh1mItw/pubhtml?gid=0&single=true";
 
     // Load Data & Sync dari LocalStorage
     useEffect(() => {
